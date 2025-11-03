@@ -25,7 +25,7 @@ add_subdirectory(libs/raylib)
 set(RAYGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/raygui/src)
 
 # Add source files
-file(GLOB SOURCES "src/*.c")
+file(GLOB_RECURSE SOURCES "src/*.c")
 
 # Create executable
 add_executable(${PROJECT_NAME} ${SOURCES})

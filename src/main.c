@@ -1,11 +1,13 @@
+#include "game-state.h"
 #include "raylib.h"
 
 int main(void) {
   const int screenWidth = 800;
   const int screenHeight = 450;
 
-  InitWindow(screenWidth, screenHeight,
-             "raylib [core] example - 3d camera free");
+  InitWindow(screenWidth, screenHeight, "wavez");
+
+  GameState *gameState = gameStateInit();
 
   Camera3D camera = {0};
   camera.position = (Vector3){10.0f, 10.0f, 10.0f};
@@ -43,6 +45,7 @@ int main(void) {
     EndDrawing();
   }
 
+  gameStateFree(gameState);
   CloseWindow();
 
   return 0;
