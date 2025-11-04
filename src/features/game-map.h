@@ -5,17 +5,18 @@
 
 #define MAP_WIDTH 50
 #define MAP_HEIGHT 50
-#define CENTER_X 20
-#define CENTER_Y 20
 
 typedef struct {
   Vector2 directions[MAP_HEIGHT][MAP_WIDTH];
 } FlowField;
 
 typedef struct {
+  Vector2 size;
+  Vector2 center;
   FlowField flowField;
 } GameMap;
 
 void gameMapInit(GameMap* gameMap);
+void gameMapRender(GameMap* gameMap);
 
 #endif
