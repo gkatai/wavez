@@ -1,6 +1,8 @@
 #include "game-state.h"
 #include "raylib.h"
 #include "render.h"
+#include "update.h"
+#include <stdlib.h>
 
 int main(void) {
   const int screenWidth = 1000;
@@ -9,6 +11,11 @@ int main(void) {
   InitWindow(screenWidth, screenHeight, "wavez");
 
   GameState *gameState = gameStateInit();
+  if (gameState == NULL) {
+    TraceLog(LOG_ERROR, "Failed to initialize game state!");
+    CloseWindow();
+    return 1;
+  }
 
   Camera3D camera = {0};
   camera.position = (Vector3){0.0f, 65.0f, 5.0f};
@@ -20,6 +27,8 @@ int main(void) {
   SetTargetFPS(60);
 
   while (!WindowShouldClose()) {
+    update(gameState, GetFrameTime());
+
     BeginDrawing();
 
     ClearBackground(RAYWHITE);
