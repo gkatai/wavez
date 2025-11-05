@@ -9,6 +9,10 @@ typedef struct {
   int capacity;
   Vector2 *positions;
   float radius;
+  Mesh mesh;
+  Material material;
+  Shader shader;
+  Matrix *transforms;
 } EnemySwarm;
 
 int enemySwarmInit(EnemySwarm *swarm, int capacity, float radius);

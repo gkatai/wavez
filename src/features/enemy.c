@@ -1,6 +1,7 @@
 #include "enemy.h"
 #include "game-map.h"
 #include "raylib.h"
+#include "raymath.h"
 #include <math.h>
 #include <stdlib.h>
 
@@ -21,16 +22,48 @@ int enemySwarmInit(EnemySwarm *swarm, int capacity, float radius) {
     swarm->positions[i].y = 22;
   }
 
+  swarm->mesh = GenMeshSphere(radius, 16, 16);
+
+  swarm->shader = LoadShader("assets/shaders/lighting_instancing.vs",
+                             "assets/shaders/lighting.fs");
+
+  swarm->material = LoadMaterialDefault();
+  swarm->material.shader = swarm->shader;
+  swarm->material.maps[MATERIAL_MAP_DIFFUSE].color = RED;
+
+  // transform matrix
+  swarm->transforms = calloc(capacity, sizeof(Matrix));
+  if (swarm->transforms == NULL) {
+    UnloadMesh(swarm->mesh);
+    UnloadMaterial(swarm->material);
+    free(swarm->positions);
+    swarm->capacity = 0;
+    swarm->count = 0;
+    return -1;
+  }
+  for (int i = 0; i < swarm->capacity; i++) {
+    swarm->transforms[i] = MatrixIdentity();
+  }
+
   return 0;
 }
 
 void enemySwarmFree(EnemySwarm *swarm) {
-  if (swarm != NULL && swarm->positions != NULL) {
-    free(swarm->positions);
-    swarm->positions = NULL;
-  }
-
   if (swarm != NULL) {
+    if (swarm->positions != NULL) {
+      free(swarm->positions);
+      swarm->positions = NULL;
+    }
+
+    if (swarm->transforms != NULL) {
+      free(swarm->transforms);
+      swarm->transforms = NULL;
+    }
+
+    UnloadShader(swarm->shader);
+    UnloadMaterial(swarm->material);
+    UnloadMesh(swarm->mesh);
+
     swarm->count = 0;
     swarm->capacity = 0;
   }
@@ -100,13 +133,18 @@ void enemySwarmUpdate(EnemySwarm *swarm, FlowField *flowField, float dt) {
       }
     }
   }
+
+  // update transform matrix
+  for (int i = 0; i < swarm->count; i++) {
+    swarm->transforms[i] =
+        MatrixTranslate(swarm->positions[i].x, 0.1, swarm->positions[i].y);
+  }
 }
 
 void enemySwarmRender(EnemySwarm *swarm) {
-  for (int i = 0; i < swarm->count; i++) {
-    DrawCircle3D((Vector3){.x = swarm->positions[i].x,
-                           .y = 0.1,
-                           .z = swarm->positions[i].y},
-                 swarm->radius, (Vector3){1.0, 0.0, 0.0}, 90.0, RED);
-  }
+  DrawMeshInstanced(swarm->mesh, swarm->material, swarm->transforms,
+                    swarm->count);
+  // for (int i = 0; i < swarm->count; i++) {
+  //   DrawMesh(swarm->mesh, swarm->material, swarm->transforms[i]);
+  // }
 }
