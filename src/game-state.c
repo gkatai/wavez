@@ -9,7 +9,7 @@ GameState *gameStateInit(void) {
   }
 
   gameMapInit(&(gameState->gameMap));
-  if (enemySwarmInit(&gameState->swarm, 100, 0.2)) {
+  if (enemySwarmInit(&gameState->swarm, 1000, 0.2)) {
     free(gameState);
     return NULL;
   }

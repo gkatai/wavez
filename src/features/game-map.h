@@ -14,9 +14,10 @@ typedef struct {
   Vector2 size;
   Vector2 center;
   FlowField flowField;
+  bool debug;
 } GameMap;
 
-void gameMapInit(GameMap* gameMap);
-void gameMapRender(GameMap* gameMap);
+void gameMapInit(GameMap *gameMap);
+void gameMapRender(GameMap *gameMap);
 
 #endif

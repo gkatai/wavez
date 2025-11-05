@@ -27,7 +27,8 @@ int main(void) {
   SetTargetFPS(60);
 
   while (!WindowShouldClose()) {
-    update(gameState, GetFrameTime());
+    float dt = GetFrameTime();
+    update(gameState, dt);
 
     BeginDrawing();
 

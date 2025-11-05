@@ -4,6 +4,7 @@
 void gameMapInit(GameMap *gameMap) {
   gameMap->size = (Vector2){.x = MAP_WIDTH, .y = MAP_HEIGHT};
   gameMap->center = (Vector2){.x = 25, .y = 25};
+  gameMap->debug = false;
 
   for (int y = 0; y < MAP_HEIGHT; y++) {
     for (int x = 0; x < MAP_WIDTH; x++) {
@@ -40,5 +41,7 @@ void gameMapRenderFlowFieldVectors(FlowField *flowField) {
 
 void gameMapRender(GameMap *gameMap) {
   DrawGrid(50, 1.0f);
-  gameMapRenderFlowFieldVectors(&(gameMap->flowField));
+  if (gameMap->debug) {
+    gameMapRenderFlowFieldVectors(&(gameMap->flowField));
+  }
 }

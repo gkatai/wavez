@@ -17,9 +17,13 @@ int enemySwarmInit(EnemySwarm *swarm, int capacity, float radius) {
     return -1;
   }
 
-  for (int i = 0; i < capacity; i++) {
-    swarm->positions[i].x = -22 + i * radius * 2;
-    swarm->positions[i].y = 22;
+  int rows = swarm->count / 100;
+
+  for (int j = 0; j < rows; j++) {
+    for (int i = 0; i < 100; i++) {
+      swarm->positions[j * 100 + i].x = -22 + i * radius * 2;
+      swarm->positions[j * 100 + i].y = 12 - j * radius * 2;
+    }
   }
 
   swarm->mesh = GenMeshSphere(radius, 16, 16);
@@ -60,9 +64,8 @@ void enemySwarmFree(EnemySwarm *swarm) {
       swarm->transforms = NULL;
     }
 
-    UnloadShader(swarm->shader);
-    UnloadMaterial(swarm->material);
     UnloadMesh(swarm->mesh);
+    UnloadMaterial(swarm->material);
 
     swarm->count = 0;
     swarm->capacity = 0;
