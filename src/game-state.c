@@ -1,5 +1,6 @@
 #include "game-state.h"
-#include "features/enemy.h"
+#include "features/entities.h"
+#include "features/swarm.h"
 #include <stdlib.h>
 
 GameState *gameStateInit(void) {
@@ -9,10 +10,8 @@ GameState *gameStateInit(void) {
   }
 
   gameMapInit(&(gameState->gameMap));
-  if (enemySwarmInit(&gameState->swarm, 1000, 0.2)) {
-    free(gameState);
-    return NULL;
-  }
+  swarmInit(&(gameState->swarms[0]), 1000, 0.2);
+  entitiesInit(&(gameState->entities), gameState->swarms, 1);
 
   return gameState;
 }
@@ -22,6 +21,5 @@ void gameStateFree(GameState *gameState) {
     return;
   }
 
-  enemySwarmFree(&(gameState->swarm));
   free(gameState);
 }

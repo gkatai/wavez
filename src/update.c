@@ -1,5 +1,5 @@
 #include "update.h"
-#include "features/enemy.h"
+#include "features/entities.h"
 
 void update(GameState *gameState, float dt) {
   // debug on/off
@@ -7,5 +7,6 @@ void update(GameState *gameState, float dt) {
     gameState->gameMap.debug = !gameState->gameMap.debug;
   }
 
-  enemySwarmUpdate(&(gameState->swarm), &(gameState->gameMap.flowField), dt);
+  entitiesUpdate(&(gameState->entities), &(gameState->gameMap.flowField),
+                 gameState->swarms, 1, dt);
 }

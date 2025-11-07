@@ -1,8 +1,8 @@
 #include "render.h"
-#include "features/enemy.h"
+#include "features/entities.h"
 #include "game-state.h"
 
 void render3D(GameState *gameState) {
   gameMapRender(&(gameState->gameMap));
-  enemySwarmRender(&(gameState->swarm));
+  entitiesRender(&(gameState->entities), gameState->swarms, 1);
 }
