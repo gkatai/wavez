@@ -1,7 +1,7 @@
-#include "swarm.h"
+#include "entity-type.h"
 #include "raylib.h"
 
-void swarmInit(Swarm *swarm, int capacity, float radius) {
+void swarmInit(EntityType *swarm, int capacity, float radius) {
   swarm->capacity = capacity;
   swarm->count = capacity;
   swarm->radius = radius;

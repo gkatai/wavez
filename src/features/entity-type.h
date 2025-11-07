@@ -10,8 +10,8 @@ typedef struct {
   Mesh mesh;
   Material material;
   Shader shader;
-} Swarm;
+} EntityType;
 
-void swarmInit(Swarm *swarm, int capacity, float radius);
+void swarmInit(EntityType *swarm, int capacity, float radius);
 
 #endif

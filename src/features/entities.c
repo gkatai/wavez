@@ -1,9 +1,8 @@
 #include "entities.h"
 #include "raymath.h"
-#include "swarm.h"
 #include <math.h>
 
-void entitiesInit(Entities *entities, Swarm *swarms, int swarmCount) {
+void entitiesInit(Entities *entities, EntityType *swarms, int swarmCount) {
   // Initialize spatial grid
   entities->gridWidth = SPATIAL_GRID_WIDTH;
   entities->gridHeight = SPATIAL_GRID_HEIGHT;
@@ -18,7 +17,7 @@ void entitiesInit(Entities *entities, Swarm *swarms, int swarmCount) {
 
   for (int currentSwarmIndex = 0; currentSwarmIndex < swarmCount;
        currentSwarmIndex++) {
-    Swarm *swarm = &(swarms[currentSwarmIndex]);
+    EntityType *swarm = &(swarms[currentSwarmIndex]);
 
     if (currentSwarmIndex == 0) {
       int rows = swarm->count / 50;
@@ -57,14 +56,14 @@ void entitiesInit(Entities *entities, Swarm *swarms, int swarmCount) {
   }
 }
 
-void entitiesUpdate(Entities *entities, FlowField *flowField, Swarm *swarms,
-                    int swarmCount, float dt) {
+void entitiesUpdate(Entities *entities, FlowField *flowField,
+                    EntityType *swarms, int swarmCount, float dt) {
   int entityIndex = 0;
 
   // Move all entities through flowfield
   for (int currentSwarmIndex = 0; currentSwarmIndex < swarmCount;
        currentSwarmIndex++) {
-    Swarm *swarm = &(swarms[currentSwarmIndex]);
+    EntityType *swarm = &(swarms[currentSwarmIndex]);
 
     for (int enemyIndex = 0; enemyIndex < swarm->count; enemyIndex++) {
       int currentEntityIndex = entityIndex + enemyIndex;
@@ -213,7 +212,7 @@ void entitiesUpdate(Entities *entities, FlowField *flowField, Swarm *swarms,
   entityIndex = 0;
   for (int currentSwarmIndex = 0; currentSwarmIndex < swarmCount;
        currentSwarmIndex++) {
-    Swarm *swarm = &(swarms[currentSwarmIndex]);
+    EntityType *swarm = &(swarms[currentSwarmIndex]);
 
     for (int enemyIndex = 0; enemyIndex < swarm->count; enemyIndex++) {
       int currentEntityIndex = entityIndex + enemyIndex;
@@ -226,12 +225,12 @@ void entitiesUpdate(Entities *entities, FlowField *flowField, Swarm *swarms,
   }
 }
 
-void entitiesRender(Entities *entities, Swarm *swarms, int swarmCount) {
+void entitiesRender(Entities *entities, EntityType *swarms, int swarmCount) {
   int entityIndex = 0;
 
   for (int currentSwarmIndex = 0; currentSwarmIndex < swarmCount;
        currentSwarmIndex++) {
-    Swarm *swarm = &(swarms[currentSwarmIndex]);
+    EntityType *swarm = &(swarms[currentSwarmIndex]);
 
     DrawMeshInstanced(swarm->mesh, swarm->material,
                       &entities->transforms[entityIndex], swarm->count);

@@ -1,6 +1,5 @@
 #include "game-state.h"
 #include "features/entities.h"
-#include "features/swarm.h"
 #include <stdlib.h>
 
 GameState *gameStateInit(void) {

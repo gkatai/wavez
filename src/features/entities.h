@@ -1,9 +1,9 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
+#include "entity-type.h"
 #include "game-map.h"
 #include "raylib.h"
-#include "swarm.h"
 
 #define MAX_ENTITIES 5000
 #define SPATIAL_GRID_CELL_SIZE 2.0f
@@ -27,9 +27,9 @@ typedef struct {
   float cellSize;
 } Entities;
 
-void entitiesInit(Entities *entities, Swarm *swarms, int swarmCount);
-void entitiesUpdate(Entities *entities, FlowField *flowField, Swarm *swarms,
-                    int swarmCount, float dt);
-void entitiesRender(Entities *entities, Swarm *swarms, int swarmCount);
+void entitiesInit(Entities *entities, EntityType *swarms, int swarmCount);
+void entitiesUpdate(Entities *entities, FlowField *flowField,
+                    EntityType *swarms, int swarmCount, float dt);
+void entitiesRender(Entities *entities, EntityType *swarms, int swarmCount);
 
 #endif
