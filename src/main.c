@@ -38,6 +38,8 @@ int main(void) {
     render3D(gameState);
     EndMode3D();
 
+    DrawFPS(10, 10);
+
     EndDrawing();
   }
 

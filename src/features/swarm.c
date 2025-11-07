@@ -6,7 +6,7 @@ void swarmInit(Swarm *swarm, int capacity, float radius) {
   swarm->count = capacity;
   swarm->radius = radius;
 
-  swarm->mesh = GenMeshSphere(radius, 16, 16);
+  swarm->mesh = GenMeshSphere(radius / 2, 16, 16);
 
   swarm->shader = LoadShader("assets/shaders/lighting_instancing.vs",
                              "assets/shaders/lighting.fs");
