@@ -4,5 +4,5 @@
 
 void render3D(GameState *gameState) {
   gameMapRender(&(gameState->gameMap));
-  entitiesRender(&(gameState->entities), gameState->swarms, 1);
+  entitiesRender(&(gameState->entities), gameState->swarms, 2);
 }

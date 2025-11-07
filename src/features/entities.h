@@ -10,6 +10,7 @@
 typedef struct {
   Vector2 positions[MAX_ENTITIES];
   Matrix transforms[MAX_ENTITIES];
+  float radii[MAX_ENTITIES];
 } Entities;
 
 void entitiesInit(Entities *entities, Swarm *swarms, int swarmCount);

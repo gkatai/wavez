@@ -10,8 +10,9 @@ GameState *gameStateInit(void) {
   }
 
   gameMapInit(&(gameState->gameMap));
-  swarmInit(&(gameState->swarms[0]), 1000, 0.2);
-  entitiesInit(&(gameState->entities), gameState->swarms, 1);
+  swarmInit(&(gameState->swarms[0]), 100, 0.2);
+  swarmInit(&(gameState->swarms[1]), 100, 0.2);
+  entitiesInit(&(gameState->entities), gameState->swarms, 2);
 
   return gameState;
 }
