@@ -3,6 +3,8 @@
 
 #include "raylib.h"
 
+typedef enum { WALL, BASIC_TOWER, BASIC_ENEMY } Type;
+
 typedef struct {
   int count;
   int capacity;
@@ -10,8 +12,11 @@ typedef struct {
   Mesh mesh;
   Material material;
   Shader shader;
+  Type type;
+  bool isStatic;
 } EntityType;
 
-void swarmInit(EntityType *swarm, int capacity, float radius);
+void entityTypeInit(EntityType *entityType, Type type, int capacity,
+                    float radius);
 
 #endif

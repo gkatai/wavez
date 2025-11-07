@@ -21,6 +21,7 @@ typedef struct {
   Vector2 positions[MAX_ENTITIES];
   Matrix transforms[MAX_ENTITIES];
   float radii[MAX_ENTITIES];
+  bool isStatic[MAX_ENTITIES];
   GridCell cells[SPATIAL_GRID_TOTAL_CELLS];
   int gridWidth;
   int gridHeight;

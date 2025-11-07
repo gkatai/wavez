@@ -47,9 +47,20 @@ void entitiesInit(Entities *entities, EntityType *swarms, int swarmCount) {
       }
     }
 
-    // set radius for all entities in this swarm
+    if (currentSwarmIndex == 2) {
+      entities->positions[entityIndex].x = 5;
+      entities->positions[entityIndex].y = 0;
+      entities->positions[entityIndex + 1].x = 5;
+      entities->positions[entityIndex + 1].y = 2;
+      entities->positions[entityIndex + 2].x = 5;
+      entities->positions[entityIndex + 2].y = 4;
+    }
+
     for (int i = 0; i < swarm->count; i++) {
+      // set radius for all entities
       entities->radii[entityIndex + i] = swarm->radius;
+      // set isStatic for all entities
+      entities->isStatic[entityIndex + i] = swarm->isStatic;
     }
 
     entityIndex += swarm->count;
@@ -67,6 +78,12 @@ void entitiesUpdate(Entities *entities, FlowField *flowField,
 
     for (int enemyIndex = 0; enemyIndex < swarm->count; enemyIndex++) {
       int currentEntityIndex = entityIndex + enemyIndex;
+
+      // Skip movement for static entities
+      if (entities->isStatic[currentEntityIndex]) {
+        continue;
+      }
+
       int gridX = (int)(entities->positions[currentEntityIndex].x + 25.0);
       int gridY = (int)(entities->positions[currentEntityIndex].y + 25.0);
 
@@ -163,6 +180,10 @@ void entitiesUpdate(Entities *entities, FlowField *flowField,
           if (j <= i)
             continue;
 
+          // Skip static-static collisions
+          if (entities->isStatic[i] && entities->isStatic[j])
+            continue;
+
           float minDist = entities->radii[i] + entities->radii[j];
           float minDistSquared = minDist * minDist;
 
@@ -204,8 +225,10 @@ void entitiesUpdate(Entities *entities, FlowField *flowField,
   // Apply accumulated corrections with damping
   float dampingFactor = 0.3f;
   for (int i = 0; i < totalEntities; i++) {
-    entities->positions[i].x += corrections[i].x * dampingFactor;
-    entities->positions[i].y += corrections[i].y * dampingFactor;
+    if (!entities->isStatic[i]) {
+      entities->positions[i].x += corrections[i].x * dampingFactor;
+      entities->positions[i].y += corrections[i].y * dampingFactor;
+    }
   }
 
   // Update transform matrices for all entities

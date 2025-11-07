@@ -8,5 +8,5 @@ void update(GameState *gameState, float dt) {
   }
 
   entitiesUpdate(&(gameState->entities), &(gameState->gameMap.flowField),
-                 gameState->swarms, 2, dt);
+                 gameState->swarms, 3, dt);
 }

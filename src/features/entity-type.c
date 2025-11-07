@@ -1,17 +1,27 @@
 #include "entity-type.h"
 #include "raylib.h"
 
-void swarmInit(EntityType *swarm, int capacity, float radius) {
-  swarm->capacity = capacity;
-  swarm->count = capacity;
-  swarm->radius = radius;
+void entityTypeInit(EntityType *entityType, Type type, int capacity,
+                    float radius) {
+  entityType->capacity = capacity;
+  entityType->count = capacity;
+  entityType->radius = radius;
 
-  swarm->mesh = GenMeshSphere(radius / 2, 16, 16);
+  switch (type) {
+  case BASIC_ENEMY:
+    entityType->isStatic = false;
+    entityType->mesh = GenMeshSphere(radius / 2, 16, 16);
+    break;
+  case WALL:
+  default:
+    entityType->isStatic = true;
+    entityType->mesh = GenMeshCube(radius, radius, radius);
+  }
 
-  swarm->shader = LoadShader("assets/shaders/lighting_instancing.vs",
-                             "assets/shaders/lighting.fs");
+  entityType->shader = LoadShader("assets/shaders/lighting_instancing.vs",
+                                  "assets/shaders/lighting.fs");
 
-  swarm->material = LoadMaterialDefault();
-  swarm->material.shader = swarm->shader;
-  swarm->material.maps[MATERIAL_MAP_DIFFUSE].color = RED;
+  entityType->material = LoadMaterialDefault();
+  entityType->material.shader = entityType->shader;
+  entityType->material.maps[MATERIAL_MAP_DIFFUSE].color = RED;
 }
