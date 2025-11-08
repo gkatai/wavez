@@ -56,11 +56,19 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 # WebAssembly specific settings
 if(EMSCRIPTEN)
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
+
+    # Add floating point consistency flags for WebAssembly
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        -ffp-contract=off
+    )
+
     target_link_options(${PROJECT_NAME} PRIVATE
         -sWASM=1
         -sALLOW_MEMORY_GROWTH=1
         -sASYNCIFY=1
+        -sSTACK_SIZE=2MB
         --preload-file=${CMAKE_SOURCE_DIR}/assets@assets
+        -ffp-contract=off
     )
 
     # Enable AddressSanitizer in Debug builds

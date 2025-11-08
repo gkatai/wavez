@@ -10,7 +10,7 @@ void gameMapInit(GameMap *gameMap) {
     for (int x = 0; x < MAP_WIDTH; x++) {
       float dx = gameMap->center.x - x;
       float dy = gameMap->center.y - y;
-      float len = sqrt(dx * dx + dy * dy);
+      float len = sqrtf(dx * dx + dy * dy);
 
       if (len > 0.01f) {
         gameMap->flowField.directions[y][x].x = dx / len;

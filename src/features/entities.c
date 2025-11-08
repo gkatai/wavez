@@ -100,8 +100,8 @@ void entitiesUpdate(Entities *entities, FlowField *flowField,
         continue;
       }
 
-      int gridX = (int)(entities->positions[currentEntityIndex].x + 25.0);
-      int gridY = (int)(entities->positions[currentEntityIndex].y + 25.0);
+      int gridX = (int)floorf(entities->positions[currentEntityIndex].x + 25.0f);
+      int gridY = (int)floorf(entities->positions[currentEntityIndex].y + 25.0f);
 
       if (gridX < 0 || gridX >= MAP_WIDTH || gridY < 0 || gridY >= MAP_HEIGHT) {
         // enemy out of bounds, skip
@@ -132,8 +132,8 @@ void entitiesUpdate(Entities *entities, FlowField *flowField,
   // Bin entities into spatial grid cells
   for (int i = 0; i < totalEntities; i++) {
     // Convert world position to grid coordinates
-    int gridX = (int)((entities->positions[i].x + 25.0f) / entities->cellSize);
-    int gridY = (int)((entities->positions[i].y + 25.0f) / entities->cellSize);
+    int gridX = (int)floorf((entities->positions[i].x + 25.0f) / entities->cellSize);
+    int gridY = (int)floorf((entities->positions[i].y + 25.0f) / entities->cellSize);
 
     // Clamp to grid bounds
     if (gridX < 0)
@@ -154,8 +154,11 @@ void entitiesUpdate(Entities *entities, FlowField *flowField,
     }
   }
 
-  // Initialize corrections array
-  Vector2 corrections[MAX_ENTITIES] = {0};
+  // Initialize corrections array to zero
+  for (int i = 0; i < totalEntities; i++) {
+    entities->corrections[i].x = 0.0f;
+    entities->corrections[i].y = 0.0f;
+  }
 
   // collision detection and damage application
   for (int i = 0; i < totalEntities; i++) {
@@ -169,8 +172,8 @@ void entitiesUpdate(Entities *entities, FlowField *flowField,
     bool damageDone = false;
 
     // Get entity's grid cell
-    int gridX = (int)((entities->positions[i].x + 25.0f) / entities->cellSize);
-    int gridY = (int)((entities->positions[i].y + 25.0f) / entities->cellSize);
+    int gridX = (int)floorf((entities->positions[i].x + 25.0f) / entities->cellSize);
+    int gridY = (int)floorf((entities->positions[i].y + 25.0f) / entities->cellSize);
 
     // Clamp to grid bounds
     if (gridX < 0)
@@ -235,10 +238,10 @@ void entitiesUpdate(Entities *entities, FlowField *flowField,
                 float separationY = ny * overlap * 0.5;
 
                 // accumulate corrections
-                corrections[i].x += separationX;
-                corrections[i].y += separationY;
-                corrections[j].x -= separationX;
-                corrections[j].y -= separationY;
+                entities->corrections[i].x += separationX;
+                entities->corrections[i].y += separationY;
+                entities->corrections[j].x -= separationX;
+                entities->corrections[j].y -= separationY;
               }
             }
           }
@@ -268,8 +271,8 @@ void entitiesUpdate(Entities *entities, FlowField *flowField,
   float dampingFactor = 0.3f;
   for (int i = 0; i < totalEntities; i++) {
     if (!entities->isStatic[i]) {
-      entities->positions[i].x += corrections[i].x * dampingFactor;
-      entities->positions[i].y += corrections[i].y * dampingFactor;
+      entities->positions[i].x += entities->corrections[i].x * dampingFactor;
+      entities->positions[i].y += entities->corrections[i].y * dampingFactor;
     }
   }
 
@@ -310,7 +313,7 @@ void entitiesRender(Entities *entities, EntityType *swarms, int swarmCount) {
     EntityType *swarm = &(swarms[currentSwarmIndex]);
 
     // Build array of transforms for living entities only
-    Matrix livingTransforms[MAX_ENTITIES];
+    Matrix livingTransforms[swarm->count];
     int livingCount = 0;
 
     for (int i = 0; i < swarm->count; i++) {

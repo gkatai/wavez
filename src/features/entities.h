@@ -28,6 +28,7 @@ typedef struct {
   float damage[MAX_ENTITIES];
   float damageRadius[MAX_ENTITIES];
   float damageCooldowns[MAX_ENTITIES];
+  Vector2 corrections[MAX_ENTITIES];
   GridCell cells[SPATIAL_GRID_TOTAL_CELLS];
   int gridWidth;
   int gridHeight;

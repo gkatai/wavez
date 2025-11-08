@@ -28,6 +28,13 @@ int main(void) {
 
   while (!WindowShouldClose()) {
     float dt = GetFrameTime();
+
+    // Clamp delta time to prevent huge jumps when tab is inactive
+    const float maxDt = 0.1f;
+    if (dt > maxDt) {
+      dt = maxDt;
+    }
+
     update(gameState, dt);
 
     BeginDrawing();
@@ -39,6 +46,8 @@ int main(void) {
     EndMode3D();
 
     DrawFPS(10, 10);
+    DrawText(TextFormat("Health: %.0f", gameState->entities.health[2003]), 10,
+             30, 20, RED);
 
     EndDrawing();
   }

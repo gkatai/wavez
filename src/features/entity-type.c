@@ -21,7 +21,7 @@ void entityTypeInit(EntityType *entityType, Type type, int capacity,
     entityType->isEnemy = true;
     entityType->health = 10;
     entityType->damage = 0.1;
-    entityType->damageRadius = 1;
+    entityType->damageRadius = 1.5;
     entityType->mesh = GenMeshSphere(radius / 2, 16, 16);
     break;
   case WALL:
