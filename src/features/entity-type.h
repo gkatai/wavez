@@ -3,7 +3,7 @@
 
 #include "raylib.h"
 
-typedef enum { WALL, BASIC_TOWER, BASIC_ENEMY } Type;
+typedef enum { SPIRE, WALL, BASIC_TOWER, BASIC_ENEMY } Type;
 
 typedef struct {
   int count;
@@ -13,7 +13,11 @@ typedef struct {
   Material material;
   Shader shader;
   Type type;
+  float health;
   bool isStatic;
+  bool isEnemy;
+  float damage;
+  float damageRadius;
 } EntityType;
 
 void entityTypeInit(EntityType *entityType, Type type, int capacity,

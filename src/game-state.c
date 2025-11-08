@@ -10,10 +10,11 @@ GameState *gameStateInit(void) {
   }
 
   gameMapInit(&(gameState->gameMap));
-  entityTypeInit(&(gameState->swarms[0]), BASIC_ENEMY, 1000, 0.4);
-  entityTypeInit(&(gameState->swarms[1]), BASIC_ENEMY, 1000, 0.4);
+  entityTypeInit(&(gameState->swarms[0]), BASIC_ENEMY, 1000, 0.3);
+  entityTypeInit(&(gameState->swarms[1]), BASIC_ENEMY, 1000, 0.3);
   entityTypeInit(&(gameState->swarms[2]), WALL, 3, 1);
-  entitiesInit(&(gameState->entities), gameState->swarms, 3);
+  entityTypeInit(&(gameState->swarms[3]), SPIRE, 1, 2);
+  entitiesInit(&(gameState->entities), gameState->swarms, 4);
 
   return gameState;
 }

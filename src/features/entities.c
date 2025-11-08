@@ -20,29 +20,25 @@ void entitiesInit(Entities *entities, EntityType *swarms, int swarmCount) {
     EntityType *swarm = &(swarms[currentSwarmIndex]);
 
     if (currentSwarmIndex == 0) {
-      int rows = swarm->count / 50;
+      int rows = swarm->count / 100;
 
       for (int j = 0; j < rows; j++) {
         for (int i = 0; i < 100; i++) {
           int currentEntityIndex = entityIndex + (j * 100 + i);
-          entities->positions[currentEntityIndex].x =
-              -22 + i * swarm->radius * 4;
-          entities->positions[currentEntityIndex].y =
-              12 - j * swarm->radius * 4;
+          entities->positions[currentEntityIndex].x = -22 + i * swarm->radius;
+          entities->positions[currentEntityIndex].y = 12 - j * swarm->radius;
         }
       }
     }
 
     if (currentSwarmIndex == 1) {
-      int rows = swarm->count / 50;
+      int rows = swarm->count / 100;
 
       for (int j = 0; j < rows; j++) {
         for (int i = 0; i < 100; i++) {
           int currentEntityIndex = entityIndex + (j * 100 + i);
-          entities->positions[currentEntityIndex].x =
-              -22 + i * swarm->radius * 4;
-          entities->positions[currentEntityIndex].y =
-              -12 - j * swarm->radius * 4;
+          entities->positions[currentEntityIndex].x = -22 + i * swarm->radius;
+          entities->positions[currentEntityIndex].y = -12 - j * swarm->radius;
         }
       }
     }
@@ -51,9 +47,14 @@ void entitiesInit(Entities *entities, EntityType *swarms, int swarmCount) {
       entities->positions[entityIndex].x = 5;
       entities->positions[entityIndex].y = 0;
       entities->positions[entityIndex + 1].x = 5;
-      entities->positions[entityIndex + 1].y = 2;
+      entities->positions[entityIndex + 1].y = 1;
       entities->positions[entityIndex + 2].x = 5;
-      entities->positions[entityIndex + 2].y = 4;
+      entities->positions[entityIndex + 2].y = 2;
+    }
+
+    if (currentSwarmIndex == 3) {
+      entities->positions[entityIndex].x = 0;
+      entities->positions[entityIndex].y = 0;
     }
 
     for (int i = 0; i < swarm->count; i++) {
@@ -61,6 +62,16 @@ void entitiesInit(Entities *entities, EntityType *swarms, int swarmCount) {
       entities->radii[entityIndex + i] = swarm->radius;
       // set isStatic for all entities
       entities->isStatic[entityIndex + i] = swarm->isStatic;
+      // set health for all entities
+      entities->health[entityIndex + i] = swarm->health;
+      // set isEnemy for all entities
+      entities->isEnemy[entityIndex + i] = swarm->isEnemy;
+      // set damage
+      entities->damage[entityIndex + i] = swarm->damage;
+      // set damage radius
+      entities->damageRadius[entityIndex + i] = swarm->damageRadius;
+      // set damage cooldown (0 = ready to damage immediately)
+      entities->damageCooldowns[entityIndex + i] = 0.0f;
     }
 
     entityIndex += swarm->count;
@@ -78,6 +89,11 @@ void entitiesUpdate(Entities *entities, FlowField *flowField,
 
     for (int enemyIndex = 0; enemyIndex < swarm->count; enemyIndex++) {
       int currentEntityIndex = entityIndex + enemyIndex;
+
+      // Skip dead entities
+      if (entities->health[currentEntityIndex] <= 0) {
+        continue;
+      }
 
       // Skip movement for static entities
       if (entities->isStatic[currentEntityIndex]) {
@@ -141,8 +157,17 @@ void entitiesUpdate(Entities *entities, FlowField *flowField,
   // Initialize corrections array
   Vector2 corrections[MAX_ENTITIES] = {0};
 
-  // Spatial grid collision detection
+  // collision detection and damage application
   for (int i = 0; i < totalEntities; i++) {
+    // Skip dead entities
+    if (entities->health[i] <= 0)
+      continue;
+
+    // Check if this entity can deal damage
+    bool canDamage =
+        entities->isEnemy[i] && entities->damageCooldowns[i] <= 0.0f;
+    bool damageDone = false;
+
     // Get entity's grid cell
     int gridX = (int)((entities->positions[i].x + 25.0f) / entities->cellSize);
     int gridY = (int)((entities->positions[i].y + 25.0f) / entities->cellSize);
@@ -172,53 +197,70 @@ void entitiesUpdate(Entities *entities, FlowField *flowField,
         int cellIndex = neighborY * entities->gridWidth + neighborX;
         GridCell *cell = &entities->cells[cellIndex];
 
-        // Check collisions with all entities in this cell
+        // Check all entities in this cell
         for (int k = 0; k < cell->count; k++) {
           int j = cell->entityIndices[k];
 
-          // Skip self and already-checked pairs
-          if (j <= i)
+          // Skip self
+          if (j == i)
             continue;
 
-          // Skip static-static collisions
-          if (entities->isStatic[i] && entities->isStatic[j])
+          // Skip dead entities
+          if (entities->health[j] <= 0)
             continue;
 
-          float minDist = entities->radii[i] + entities->radii[j];
-          float minDistSquared = minDist * minDist;
-
+          // Calculate distance once
           float dx_pos = entities->positions[i].x - entities->positions[j].x;
           float dy_pos = entities->positions[i].y - entities->positions[j].y;
-
           float distSquared = dx_pos * dx_pos + dy_pos * dy_pos;
 
-          // collision
-          if (distSquared < minDistSquared) {
-            float distance = sqrtf(distSquared);
+          // Collision detection
+          if (j > i && !(entities->isStatic[i] && entities->isStatic[j])) {
+            float minDist = entities->radii[i] + entities->radii[j];
+            float minDistSquared = minDist * minDist;
 
-            // don't divide by zero
-            if (distance < 0.0001) {
-              continue;
+            if (distSquared < minDistSquared) {
+              float distance = sqrtf(distSquared);
+
+              // don't divide by zero
+              if (distance >= 0.0001) {
+                float overlap = minDist - distance;
+
+                // normalized directions
+                float nx = dx_pos / distance;
+                float ny = dy_pos / distance;
+
+                // separation
+                float separationX = nx * overlap * 0.5;
+                float separationY = ny * overlap * 0.5;
+
+                // accumulate corrections
+                corrections[i].x += separationX;
+                corrections[i].y += separationY;
+                corrections[j].x -= separationX;
+                corrections[j].y -= separationY;
+              }
             }
+          }
 
-            float overlap = minDist - distance;
+          // Damage application (enemy -> non-enemy)
+          if (canDamage && !damageDone && !entities->isEnemy[j]) {
+            float damageRadiusSquared =
+                entities->damageRadius[i] * entities->damageRadius[i];
 
-            // normalized directions
-            float nx = dx_pos / distance;
-            float ny = dy_pos / distance;
-
-            // separation
-            float separationX = nx * overlap * 0.5;
-            float separationY = ny * overlap * 0.5;
-
-            // accumulate corrections
-            corrections[i].x += separationX;
-            corrections[i].y += separationY;
-            corrections[j].x -= separationX;
-            corrections[j].y -= separationY;
+            if (distSquared <= damageRadiusSquared) {
+              entities->health[j] -= entities->damage[i];
+              entities->damageCooldowns[i] = DAMAGE_COOLDOWN;
+              damageDone = true;
+              break; // Only damage one entity per cooldown cycle
+            }
           }
         }
+        if (damageDone)
+          break;
       }
+      if (damageDone)
+        break;
     }
   }
 
@@ -231,6 +273,13 @@ void entitiesUpdate(Entities *entities, FlowField *flowField,
     }
   }
 
+  // Decrement all damage cooldowns
+  for (int i = 0; i < totalEntities; i++) {
+    if (entities->damageCooldowns[i] > 0.0f) {
+      entities->damageCooldowns[i] -= dt;
+    }
+  }
+
   // Update transform matrices for all entities
   entityIndex = 0;
   for (int currentSwarmIndex = 0; currentSwarmIndex < swarmCount;
@@ -239,6 +288,11 @@ void entitiesUpdate(Entities *entities, FlowField *flowField,
 
     for (int enemyIndex = 0; enemyIndex < swarm->count; enemyIndex++) {
       int currentEntityIndex = entityIndex + enemyIndex;
+
+      // Skip dead entities
+      if (entities->health[currentEntityIndex] <= 0)
+        continue;
+
       entities->transforms[currentEntityIndex] =
           MatrixTranslate(entities->positions[currentEntityIndex].x, 0.1,
                           entities->positions[currentEntityIndex].y);
@@ -255,8 +309,26 @@ void entitiesRender(Entities *entities, EntityType *swarms, int swarmCount) {
        currentSwarmIndex++) {
     EntityType *swarm = &(swarms[currentSwarmIndex]);
 
-    DrawMeshInstanced(swarm->mesh, swarm->material,
-                      &entities->transforms[entityIndex], swarm->count);
+    // Build array of transforms for living entities only
+    Matrix livingTransforms[MAX_ENTITIES];
+    int livingCount = 0;
+
+    for (int i = 0; i < swarm->count; i++) {
+      int currentEntityIndex = entityIndex + i;
+
+      // Skip dead entities
+      if (entities->health[currentEntityIndex] <= 0)
+        continue;
+
+      livingTransforms[livingCount++] =
+          entities->transforms[currentEntityIndex];
+    }
+
+    // Only render if there are living entities
+    if (livingCount > 0) {
+      DrawMeshInstanced(swarm->mesh, swarm->material, livingTransforms,
+                        livingCount);
+    }
 
     entityIndex += swarm->count;
   }
